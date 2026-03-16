@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}首页 | TimeLens{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>你的照片，不只是文件，而是记忆入口。</h1>
+    <p>先从最近导入、那年今日和随机回忆开始，逐步长成属于你的人生记忆系统。</p>
+  </div>
+  <div class="hero-actions">
+    <a class="button" href="/gallery">浏览照片</a>
+    <a class="button ghost" href="/memories/on-this-day">查看那年今日</a>
+  </div>
+</section>
+
+<section>
+  <div class="section-title">
+    <h2>随机照片</h2>
+  </div>
+  {% if random_photo %}
+  <a class="featured-card" href="/photos/{{ random_photo.id }}">
+    {% if random_photo.thumbnail_path %}
+    <img src="/{{ random_photo.thumbnail_path }}" alt="{{ random_photo.file_name }}" />
+    {% endif %}
+    <div>
+      <h3>{{ random_photo.file_name }}</h3>
+      <p>{{ random_photo.photo_taken_at|datetime }}</p>
+      <p>{{ random_photo.location_name or random_photo.city or "地点待识别" }}</p>
+    </div>
+  </a>
+  {% else %}
+  <p class="empty">还没有照片，先运行扫描命令导入你的照片目录。</p>
+  {% endif %}
+</section>
+
+<section>
+  <div class="section-title">
+    <h2>那年今日</h2>
+    <a href="/memories/on-this-day">查看全部</a>
+  </div>
+  <div class="photo-grid">
+    {% for photo in on_this_day[:8] %}
+    <a class="photo-card" href="/photos/{{ photo.id }}">
+      {% if photo.thumbnail_path %}
+      <img src="/{{ photo.thumbnail_path }}" alt="{{ photo.file_name }}" />
+      {% endif %}
+      <div class="photo-meta">
+        <strong>{{ photo.photo_taken_at.year if photo.photo_taken_at else "未知" }}</strong>
+        <span>{{ photo.location_name or photo.city or "未知地点" }}</span>
+      </div>
+    </a>
+    {% else %}
+    <p class="empty">今天还没有历史照片，等你导入更多回忆。</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <div class="section-title">
+    <h2>最近导入</h2>
+    <a href="/gallery?sort=imported_desc">按导入时间查看</a>
+  </div>
+  <div class="photo-grid">
+    {% for photo in recent_photos %}
+    <a class="photo-card" href="/photos/{{ photo.id }}">
+      {% if photo.thumbnail_path %}
+      <img src="/{{ photo.thumbnail_path }}" alt="{{ photo.file_name }}" />
+      {% endif %}
+      <div class="photo-meta">
+        <strong>{{ photo.file_name }}</strong>
+        <span>{{ photo.imported_at|datetime }}</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

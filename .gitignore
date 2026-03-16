@@ -1,0 +1,14 @@
+.DS_Store
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+data/db/*.db
+data/thumbnails/*
+data/cache/*
+
+!data/db/.gitkeep
+!data/thumbnails/.gitkeep
+!data/cache/.gitkeep

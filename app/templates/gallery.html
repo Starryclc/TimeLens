@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}照片列表 | TimeLens{% endblock %}
+{% block content %}
+<section class="section-title">
+  <div>
+    <h1>照片列表</h1>
+    <p>按时间、地点、设备快速回看你的回忆。</p>
+  </div>
+</section>
+
+<form class="filters" method="get">
+  <input type="number" name="year" placeholder="年份" value="{{ filters.year or '' }}" />
+  <input type="number" name="month" placeholder="月份" value="{{ filters.month or '' }}" min="1" max="12" />
+  <input list="locations" name="location" placeholder="地点" value="{{ filters.location }}" />
+  <datalist id="locations">
+    {% for item in locations %}
+    <option value="{{ item }}"></option>
+    {% endfor %}
+  </datalist>
+  <input list="devices" name="device" placeholder="设备" value="{{ filters.device }}" />
+  <datalist id="devices">
+    {% for item in devices %}
+    <option value="{{ item }}"></option>
+    {% endfor %}
+  </datalist>
+  <input type="text" name="tag" placeholder="标签" value="{{ filters.tag }}" />
+  <select name="sort">
+    <option value="taken_desc" {% if filters.sort == "taken_desc" %}selected{% endif %}>按拍摄时间</option>
+    <option value="imported_desc" {% if filters.sort == "imported_desc" %}selected{% endif %}>按导入时间</option>
+  </select>
+  <button type="submit">筛选</button>
+</form>
+
+<div class="photo-grid">
+  {% for photo in photos %}
+  <a class="photo-card" href="/photos/{{ photo.id }}">
+    {% if photo.thumbnail_path %}
+    <img src="/{{ photo.thumbnail_path }}" alt="{{ photo.file_name }}" />
+    {% endif %}
+    <div class="photo-meta">
+      <strong>{{ photo.file_name }}</strong>
+      <span>{{ photo.photo_taken_at|datetime }}</span>
+      <span>{{ photo.location_name or photo.city or "未知地点" }}</span>
+    </div>
+  </a>
+  {% else %}
+  <p class="empty">当前筛选条件下没有照片。</p>
+  {% endfor %}
+</div>
+{% endblock %}

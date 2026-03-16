@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}照片详情 | TimeLens{% endblock %}
+{% block content %}
+{% if photo %}
+<article class="detail-layout">
+  <section class="detail-image">
+    <img src="/media/photos/{{ photo.id }}" alt="{{ photo.file_name }}" />
+  </section>
+  <section class="detail-panel">
+    <h1>{{ photo.file_name }}</h1>
+    <dl class="detail-list">
+      <div><dt>拍摄时间</dt><dd>{{ photo.photo_taken_at|datetime }}</dd></div>
+      <div><dt>导入时间</dt><dd>{{ photo.imported_at|datetime }}</dd></div>
+      <div><dt>地点</dt><dd>{{ photo.location_name or photo.city or photo.country or "未知" }}</dd></div>
+      <div><dt>设备</dt><dd>{{ [photo.device_make, photo.device_model]|select|join(' ') or "未知" }}</dd></div>
+      <div><dt>尺寸</dt><dd>{{ photo.width or "-" }} x {{ photo.height or "-" }}</dd></div>
+      <div><dt>文件大小</dt><dd>{{ photo.file_size }} bytes</dd></div>
+      <div><dt>文件路径</dt><dd class="path">{{ photo.file_path }}</dd></div>
+      <div><dt>状态</dt><dd>{{ photo.status }}</dd></div>
+      <div><dt>重复照片</dt><dd>{{ "是" if photo.is_duplicate else "否" }}</dd></div>
+    </dl>
+
+    <section class="tag-list">
+      <h2>标签</h2>
+      {% for tag in photo.tags %}
+      <span class="tag">{{ tag.tag }}</span>
+      {% else %}
+      <p class="empty">暂时没有标签。</p>
+      {% endfor %}
+    </section>
+
+    <section>
+      <h2>EXIF 摘要</h2>
+      <p>{{ photo.exif_summary or "暂无 EXIF 摘要" }}</p>
+    </section>
+
+    <section>
+      <h2>AI 描述</h2>
+      <p>{{ photo.ai_description or "Phase 3 接入本地视觉模型后补充。" }}</p>
+    </section>
+  </section>
+</article>
+{% else %}
+<p class="empty">照片不存在。</p>
+{% endif %}
+{% endblock %}
