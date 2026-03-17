@@ -39,6 +39,10 @@ class Settings(BaseSettings):
         default=8,
         alias="TIMELENS_GEOCODER_TIMEOUT_SECONDS",
     )
+    frontend_dev_url: str = Field(
+        default="http://127.0.0.1:5173",
+        alias="TIMELENS_FRONTEND_DEV_URL",
+    )
     host: str = Field(default="127.0.0.1", alias="TIMELENS_HOST")
     port: int = Field(default=8000, alias="TIMELENS_PORT")
 

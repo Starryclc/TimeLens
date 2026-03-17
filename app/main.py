@@ -1,17 +1,12 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from app.api.media import router as media_router
-from app.api.meta import router as meta_router
-from app.api.phase2 import router as phase2_router
-from app.api.photos import router as photos_router
-from app.api.scan import router as scan_router
-from app.api.web import router as web_router, templates
+from app.controllers import api_router
 from app.core.logging import configure_logging
 from app.core.settings import get_settings
 from app.db.init_db import init_db
-from app.services.template_helpers import format_datetime
 
 
 settings = get_settings()
@@ -19,21 +14,32 @@ configure_logging(settings.debug)
 init_db()
 
 app = FastAPI(title=settings.app_name, debug=settings.debug)
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        settings.frontend_dev_url,
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.mount("/data", StaticFiles(directory="data"), name="data")
-templates.env.filters["datetime"] = format_datetime
-
-app.include_router(web_router)
-app.include_router(photos_router)
-app.include_router(scan_router)
-app.include_router(media_router)
-app.include_router(meta_router)
-app.include_router(phase2_router)
+app.include_router(api_router)
 
 
-@app.get("/healthz", tags=["system"])
-def healthz() -> dict[str, str]:
-    return {"status": "ok"}
+@app.get("/", tags=["system"])
+def root() -> dict[str, str]:
+    return {
+        "name": settings.app_name,
+        "mode": "api",
+        "message": "TimeLens backend is running. Start the separate frontend app to browse photos.",
+    }
 
 
 def main() -> None:

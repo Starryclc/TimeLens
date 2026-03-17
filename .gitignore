@@ -4,8 +4,17 @@
 __pycache__/
 .pytest_cache/
 *.pyc
+*.pyo
+*.log
+.coverage
+coverage/
+frontend/node_modules/
+frontend/dist/
+frontend/.env
 
 data/db/*.db
+data/db/*.db-shm
+data/db/*.db-wal
 data/thumbnails/*
 data/cache/*
 

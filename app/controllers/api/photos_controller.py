@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.photo import PhotoRead
 from app.services.photo_service import photo_service
+from app.views.api.photo_view import PhotoRead
 
 
 router = APIRouter(prefix="/photos", tags=["photos"])
