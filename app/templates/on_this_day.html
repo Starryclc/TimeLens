@@ -1,23 +1,31 @@
 {% extends "base.html" %}
 {% block title %}那年今日 | TimeLens{% endblock %}
 {% block content %}
-<section class="section-title">
+<section class="section-heading page-intro">
   <div>
+    <span class="eyebrow">On This Day</span>
     <h1>那年今日</h1>
-    <p>按年份回看同一天的照片。</p>
+    <p>把同一天分散在不同年份里的照片重新拼接在一起，看看时间如何重复出现。</p>
   </div>
 </section>
 
 {% for year, photos in groups %}
 <section class="year-group">
-  <h2>{{ year }}</h2>
+  <div class="section-heading year-heading">
+    <div>
+      <span class="eyebrow">Year {{ year }}</span>
+      <h2>{{ year }}</h2>
+    </div>
+    <div class="stat-chip">{{ photos|length }} 张照片</div>
+  </div>
   <div class="photo-grid">
     {% for photo in photos %}
     <a class="photo-card" href="/photos/{{ photo.id }}">
       {% if photo.thumbnail_path %}
-      <img src="/{{ photo.thumbnail_path }}" alt="{{ photo.file_name }}" />
+      <img src="/{{ photo.thumbnail_path }}" alt="{{ photo.file_name }}" sizes="(max-width: 980px) 50vw, 280px" />
       {% endif %}
       <div class="photo-meta">
+        <span class="mini-label">{{ photo.photo_taken_at|datetime }}</span>
         <strong>{{ photo.file_name }}</strong>
         <span>{{ photo.location_name or photo.city or "未知地点" }}</span>
       </div>
@@ -26,6 +34,9 @@
   </div>
 </section>
 {% else %}
-<p class="empty">今天还没有可展示的历史照片。</p>
+<div class="empty-state">
+  <h3>今天还没有可展示的历史照片</h3>
+  <p>等你继续导入照片后，这里会自动长出跨年份的回忆切片。</p>
+</div>
 {% endfor %}
 {% endblock %}

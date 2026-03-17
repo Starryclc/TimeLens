@@ -2,12 +2,25 @@
 {% block title %}照片详情 | TimeLens{% endblock %}
 {% block content %}
 {% if photo %}
+<section class="section-heading page-intro">
+  <div>
+    <span class="eyebrow">Photo Detail</span>
+    <h1>{{ photo.file_name }}</h1>
+    <p>查看这张照片被系统整理出的时间、地点、设备与记忆线索。</p>
+  </div>
+  <a class="button ghost" href="/gallery">返回照片列表</a>
+</section>
+
 <article class="detail-layout">
   <section class="detail-image">
-    <img src="/media/photos/{{ photo.id }}" alt="{{ photo.file_name }}" />
+    <img src="/media/photos/{{ photo.id }}" alt="{{ photo.file_name }}" sizes="100vw" />
   </section>
   <section class="detail-panel">
-    <h1>{{ photo.file_name }}</h1>
+    <div class="detail-hero-meta">
+      <span class="pill">{{ photo.location_name or photo.city or "未知地点" }}</span>
+      <span class="pill">{{ [photo.device_make, photo.device_model]|select|join(' ') or "未知设备" }}</span>
+      <span class="pill">{{ photo.photo_taken_at|datetime }}</span>
+    </div>
     <dl class="detail-list">
       <div><dt>拍摄时间</dt><dd>{{ photo.photo_taken_at|datetime }}</dd></div>
       <div><dt>导入时间</dt><dd>{{ photo.imported_at|datetime }}</dd></div>
@@ -20,27 +33,41 @@
       <div><dt>重复照片</dt><dd>{{ "是" if photo.is_duplicate else "否" }}</dd></div>
     </dl>
 
-    <section class="tag-list">
-      <h2>标签</h2>
-      {% for tag in photo.tags %}
-      <span class="tag">{{ tag.tag }}</span>
-      {% else %}
-      <p class="empty">暂时没有标签。</p>
-      {% endfor %}
+    <section class="detail-section">
+      <div class="detail-section-heading">
+        <h2>标签</h2>
+        <span class="mini-label">AI / 手工 / 规则</span>
+      </div>
+      <div class="tag-list">
+        {% for tag in photo.tags %}
+        <span class="tag">{{ tag.tag }}</span>
+        {% else %}
+        <p class="empty">暂时没有标签。</p>
+        {% endfor %}
+      </div>
     </section>
 
-    <section>
-      <h2>EXIF 摘要</h2>
+    <section class="detail-section">
+      <div class="detail-section-heading">
+        <h2>EXIF 摘要</h2>
+        <span class="mini-label">相机元数据</span>
+      </div>
       <p>{{ photo.exif_summary or "暂无 EXIF 摘要" }}</p>
     </section>
 
-    <section>
-      <h2>AI 描述</h2>
+    <section class="detail-section">
+      <div class="detail-section-heading">
+        <h2>AI 描述</h2>
+        <span class="mini-label">Phase 3 预留</span>
+      </div>
       <p>{{ photo.ai_description or "Phase 3 接入本地视觉模型后补充。" }}</p>
     </section>
   </section>
 </article>
 {% else %}
-<p class="empty">照片不存在。</p>
+<div class="empty-state">
+  <h3>照片不存在</h3>
+  <p>这张照片可能已被删除，或数据库中的路径与实际文件不再一致。</p>
+</div>
 {% endif %}
 {% endblock %}
