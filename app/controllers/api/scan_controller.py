@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.schemas.photo import ScanRequest, ScanResponse
 from app.services.scan_service import scan_service
+from app.views.api.photo_view import ScanRequest, ScanResponse
 
 
 router = APIRouter(tags=["scan"])

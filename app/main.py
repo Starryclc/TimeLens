@@ -1,12 +1,9 @@
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from app.api.media import router as media_router
-from app.api.meta import router as meta_router
-from app.api.phase2 import router as phase2_router
-from app.api.photos import router as photos_router
-from app.api.scan import router as scan_router
+from app.controllers import api_router
 from app.core.logging import configure_logging
 from app.core.settings import get_settings
 from app.db.init_db import init_db
@@ -24,18 +21,15 @@ app.add_middleware(
         settings.frontend_dev_url,
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
     ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-api_router = APIRouter(prefix="/api")
-api_router.include_router(photos_router)
-api_router.include_router(scan_router)
-api_router.include_router(media_router)
-api_router.include_router(meta_router)
-api_router.include_router(phase2_router)
+app.mount("/data", StaticFiles(directory="data"), name="data")
 app.include_router(api_router)
 
 
@@ -46,11 +40,6 @@ def root() -> dict[str, str]:
         "mode": "api",
         "message": "TimeLens backend is running. Start the separate frontend app to browse photos.",
     }
-
-
-@app.get("/healthz", tags=["system"])
-def healthz() -> dict[str, str]:
-    return {"status": "ok"}
 
 
 def main() -> None:
