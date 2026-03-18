@@ -41,8 +41,7 @@ def test_scan_directory_persists_capture_fields(db_session, tmp_path, monkeypatc
         "app.services.scan_service.exif_service.extract",
         lambda _path: ExifData(
             photo_taken_at=datetime(2024, 5, 1, 9, 30, 0),
-            device_make="Sony",
-            device_model="ZV-E10",
+            device="Sony ZV-E10",
             lens_model="Sigma 56mm F1.4 DC DN",
             focal_length="56mm",
             aperture="f/1.4",
@@ -69,6 +68,7 @@ def test_scan_directory_persists_capture_fields(db_session, tmp_path, monkeypatc
     scan_service.scan_directory(db_session, str(photo_dir))
     photo = db_session.query(Photo).filter_by(file_name="capture.jpg").one()
 
+    assert photo.device == "Sony ZV-E10"
     assert photo.lens_model == "Sigma 56mm F1.4 DC DN"
     assert photo.focal_length == "56mm"
     assert photo.aperture == "f/1.4"

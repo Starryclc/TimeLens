@@ -16,8 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class ExifData:
     photo_taken_at: datetime | None = None
-    device_make: str | None = None
-    device_model: str | None = None
+    device: str | None = None
     lens_model: str | None = None
     focal_length: str | None = None
     aperture: str | None = None
@@ -136,8 +135,9 @@ class ExifService:
         data.photo_taken_at = _parse_datetime(
             str(tags.get("EXIF DateTimeOriginal") or tags.get("Image DateTime") or "")
         )
-        data.device_make = _safe_str(tags.get("Image Make"))
-        data.device_model = _safe_str(tags.get("Image Model"))
+        device_make = _safe_str(tags.get("Image Make"))
+        device_model = _safe_str(tags.get("Image Model"))
+        data.device = " ".join(filter(None, [device_make, device_model])) or None
         data.lens_model = _safe_str(tags.get("EXIF LensModel"))
         data.focal_length = _format_focal_length(
             getattr(tags.get("EXIF FocalLength"), "values", [None])[0]
@@ -160,11 +160,8 @@ class ExifService:
         parts = []
         if data.photo_taken_at:
             parts.append(f"拍摄于 {data.photo_taken_at:%Y-%m-%d %H:%M:%S}")
-        if data.device_make or data.device_model:
-            parts.append(
-                "设备 "
-                + " ".join(filter(None, [data.device_make, data.device_model]))
-            )
+        if data.device:
+            parts.append(f"设备 {data.device}")
         if data.lens_model:
             parts.append(f"镜头 {data.lens_model}")
         capture_parts = [

@@ -42,7 +42,7 @@ TEST_PHOTOS = [
         "color": (128, 158, 204),
         "size": (1200, 1200),
         "location": {"location_name": "香港", "city": "香港", "region": "香港特别行政区", "country": "中国"},
-        "capture": {"make": "FUJIFILM", "model": "X100V", "lens": "23mm F2", "focal_length": (23, 1), "aperture": (2, 1), "exposure_time": (1, 250), "iso": 160},
+        "capture": {"make": "FUJIFILM", "model": "X100V", "lens": "FUJINON 23mm F2", "focal_length": (23, 1), "aperture": (2, 1), "exposure_time": (1, 250), "iso": 160},
     },
     {
         "timestamp": "2024-07-09 10:27:00",
@@ -90,7 +90,7 @@ TEST_PHOTOS = [
         "color": (102, 146, 196),
         "size": (1200, 1200),
         "location": {"location_name": "香港", "city": "香港", "region": "香港特别行政区", "country": "中国"},
-        "capture": {"make": "Ricoh", "model": "GR IIIx", "lens": "26.1mm F2.8", "focal_length": (26, 1), "aperture": (28, 10), "exposure_time": (1, 100), "iso": 250},
+        "capture": {"make": "Ricoh", "model": "GR IIIx", "lens": "GR LENS 26.1mm F2.8", "focal_length": (26, 1), "aperture": (28, 10), "exposure_time": (1, 100), "iso": 250},
     },
     {
         "timestamp": "2024-11-08 16:10:00",
@@ -214,8 +214,7 @@ def apply_test_locations(db_path: Path, generated: list[tuple[str, dict[str, obj
                     city = ?,
                     region = ?,
                     country = ?,
-                    device_make = ?,
-                    device_model = ?,
+                    device = ?,
                     lens_model = ?,
                     focal_length = ?,
                     aperture = ?,
@@ -228,8 +227,9 @@ def apply_test_locations(db_path: Path, generated: list[tuple[str, dict[str, obj
                     location["city"],
                     location["region"],
                     location["country"],
-                    capture["make"],
-                    capture["model"],
+                    " ".join(
+                        part for part in [capture["make"], capture["model"]] if part
+                    ),
                     capture["lens"],
                     _format_fraction(capture["focal_length"], suffix="mm"),
                     _format_fraction(capture["aperture"], prefix="f/"),

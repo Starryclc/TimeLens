@@ -12,6 +12,7 @@ def _ensure_photo_columns() -> None:
 
     existing_columns = {column["name"] for column in inspector.get_columns("photos")}
     statements = {
+        "device": "ALTER TABLE photos ADD COLUMN device VARCHAR(255)",
         "is_hidden": "ALTER TABLE photos ADD COLUMN is_hidden BOOLEAN NOT NULL DEFAULT 0",
         "hidden_at": "ALTER TABLE photos ADD COLUMN hidden_at DATETIME",
         "hidden_reason": "ALTER TABLE photos ADD COLUMN hidden_reason VARCHAR(120)",
@@ -27,6 +28,42 @@ def _ensure_photo_columns() -> None:
         for column_name, statement in statements.items():
             if column_name not in existing_columns:
                 connection.execute(text(statement))
+
+        if "device" in existing_columns or "device" in statements:
+            connection.execute(
+                text(
+                    """
+                    UPDATE photos
+                    SET device = TRIM(
+                        COALESCE(device, '')
+                    )
+                    WHERE device IS NOT NULL
+                    """
+                )
+            )
+            if "device_make" in existing_columns or "device_model" in existing_columns:
+                connection.execute(
+                    text(
+                        """
+                        UPDATE photos
+                        SET device = TRIM(
+                            COALESCE(NULLIF(device_make, ''), '')
+                            || CASE
+                                WHEN COALESCE(NULLIF(device_make, ''), '') != ''
+                                  AND COALESCE(NULLIF(device_model, ''), '') != ''
+                                THEN ' '
+                                ELSE ''
+                            END
+                            || COALESCE(NULLIF(device_model, ''), '')
+                        )
+                        WHERE (device IS NULL OR TRIM(device) = '')
+                          AND (
+                            COALESCE(NULLIF(device_make, ''), '') != ''
+                            OR COALESCE(NULLIF(device_model, ''), '') != ''
+                          )
+                        """
+                    )
+                )
 
 
 def init_db() -> None:

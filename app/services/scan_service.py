@@ -131,8 +131,7 @@ class ScanService:
         photo.modified_at = datetime.fromtimestamp(stat.st_mtime)
         photo.imported_at = existing.imported_at if existing else datetime.utcnow()
         photo.photo_taken_at = exif.photo_taken_at
-        photo.device_make = exif.device_make
-        photo.device_model = exif.device_model
+        photo.device = exif.device
         photo.lens_model = exif.lens_model
         photo.focal_length = exif.focal_length
         photo.aperture = exif.aperture
