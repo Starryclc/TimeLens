@@ -10,6 +10,7 @@ from app.models import models  # noqa: F401
 
 @pytest.fixture()
 def db_session(tmp_path) -> Generator[Session, None, None]:
+    """为测试提供隔离的 SQLite 会话。"""
     db_path = tmp_path / "test.db"
     engine = create_engine(f"sqlite:///{db_path}", connect_args={"check_same_thread": False})
     TestingSessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)

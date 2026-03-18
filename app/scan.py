@@ -8,6 +8,7 @@ from app.services.scan_service import scan_service
 
 
 def main() -> None:
+    """通过命令行扫描目标照片目录。"""
     parser = argparse.ArgumentParser(description="Scan photos into the TimeLens database.")
     parser.add_argument("path", help="Directory containing photos to scan")
     args = parser.parse_args()

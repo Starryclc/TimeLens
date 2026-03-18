@@ -77,6 +77,11 @@ class Photo(Base, TimestampMixin):
     photo_taken_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
     device_make: Mapped[str | None] = mapped_column(String(120), nullable=True)
     device_model: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    lens_model: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    focal_length: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    aperture: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    exposure_time: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    iso: Mapped[int | None] = mapped_column(Integer, nullable=True)
     width: Mapped[int | None] = mapped_column(Integer, nullable=True)
     height: Mapped[int | None] = mapped_column(Integer, nullable=True)
     file_size: Mapped[int] = mapped_column(Integer, nullable=False)
@@ -98,6 +103,10 @@ class Photo(Base, TimestampMixin):
     status: Mapped[str] = mapped_column(String(32), default="pending", nullable=False)
     exif_summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_duplicate: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    is_hidden: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    hidden_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
+    hidden_reason: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    archived_file_path: Mapped[str | None] = mapped_column(String(2048), nullable=True)
     duplicate_of_photo_id: Mapped[int | None] = mapped_column(
         ForeignKey("photos.id"),
         nullable=True,
@@ -110,6 +119,7 @@ class Photo(Base, TimestampMixin):
     duplicate_of: Mapped[Photo | None] = relationship(remote_side=[id])
     tags: Mapped[list[PhotoTag]] = relationship(back_populates="photo")
     faces: Mapped[list[Face]] = relationship(back_populates="photo")
+    album_links: Mapped[list[AlbumPhoto]] = relationship(back_populates="photo")
 
 
 class PhotoTag(Base):
@@ -236,3 +246,34 @@ class TimelineStory(Base, TimestampMixin):
     summary: Mapped[str | None] = mapped_column(Text, nullable=True)
     cover_photo_id: Mapped[int | None] = mapped_column(ForeignKey("photos.id"), nullable=True)
     source: Mapped[str] = mapped_column(String(32), default="rule", nullable=False)
+
+
+class Album(Base, TimestampMixin):
+    __tablename__ = "albums"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    title: Mapped[str] = mapped_column(String(255), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    album_type: Mapped[str] = mapped_column(String(32), default="custom", nullable=False)
+
+    photos: Mapped[list[AlbumPhoto]] = relationship(
+        back_populates="album",
+        cascade="all, delete-orphan",
+    )
+
+
+class AlbumPhoto(Base):
+    __tablename__ = "album_photos"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    album_id: Mapped[int] = mapped_column(ForeignKey("albums.id"), nullable=False, index=True)
+    photo_id: Mapped[int] = mapped_column(ForeignKey("photos.id"), nullable=False, index=True)
+    rank: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False,
+    )
+
+    album: Mapped[Album] = relationship(back_populates="photos")
+    photo: Mapped[Photo] = relationship(back_populates="album_links")

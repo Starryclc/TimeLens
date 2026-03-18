@@ -21,6 +21,11 @@ class PhotoRead(BaseModel):
     imported_at: datetime
     device_make: str | None
     device_model: str | None
+    lens_model: str | None
+    focal_length: str | None
+    aperture: str | None
+    exposure_time: str | None
+    iso: int | None
     width: int | None
     height: int | None
     file_size: int
@@ -38,6 +43,10 @@ class PhotoRead(BaseModel):
     status: str
     exif_summary: str | None
     is_duplicate: bool
+    is_hidden: bool
+    hidden_at: datetime | None
+    hidden_reason: str | None
+    archived_file_path: str | None
     duplicate_of_photo_id: int | None
     tags: list[PhotoTagRead] = []
 

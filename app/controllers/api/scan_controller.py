@@ -11,6 +11,7 @@ router = APIRouter(tags=["scan"])
 
 @router.post("/scan", response_model=ScanResponse)
 def run_scan(payload: ScanRequest, db: Session = Depends(get_db)) -> ScanResponse:
+    """触发目录扫描并返回任务摘要。"""
     try:
         result = scan_service.scan_directory(db, payload.path)
     except ValueError as exc:

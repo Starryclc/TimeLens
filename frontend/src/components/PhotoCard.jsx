@@ -16,7 +16,6 @@ export function PhotoCard({ photo, compactLabel }) {
       )}
       <div className="photo-meta">
         <span className="mini-label">{compactLabel || getPhotoYear(photo)}</span>
-        <strong>{photo.file_name}</strong>
         <span>{formatDateTime(photo.photo_taken_at)}</span>
         <span>{getPhotoLocation(photo)}</span>
       </div>

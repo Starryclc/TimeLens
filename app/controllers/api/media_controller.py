@@ -13,6 +13,7 @@ router = APIRouter(prefix="/media", tags=["media"])
 
 @router.get("/photos/{photo_id}")
 def get_original_photo(photo_id: int, db: Session = Depends(get_db)) -> FileResponse:
+    """返回指定照片记录对应的原图文件。"""
     photo = photo_service.get_photo(db, photo_id)
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")

@@ -14,6 +14,7 @@ settings = get_settings()
 
 class ThumbnailService:
     def build_thumbnail(self, source_path: Path, file_hash: str | None) -> str | None:
+        """为图片创建或复用缩略图。"""
         if not file_hash:
             return None
 

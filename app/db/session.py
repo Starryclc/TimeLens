@@ -19,6 +19,7 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
 def get_db() -> Generator[Session, None, None]:
+    """按请求范围提供数据库会话。"""
     db = SessionLocal()
     try:
         yield db
