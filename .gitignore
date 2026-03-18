@@ -15,6 +15,7 @@ frontend/.env
 data/db/*.db
 data/db/*.db-shm
 data/db/*.db-wal
+data/demo_photos/
 data/thumbnails/*
 data/cache/*
 
