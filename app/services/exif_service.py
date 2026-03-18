@@ -18,6 +18,11 @@ class ExifData:
     photo_taken_at: datetime | None = None
     device_make: str | None = None
     device_model: str | None = None
+    lens_model: str | None = None
+    focal_length: str | None = None
+    aperture: str | None = None
+    exposure_time: str | None = None
+    iso: int | None = None
     gps_lat: float | None = None
     gps_lon: float | None = None
     width: int | None = None
@@ -26,6 +31,7 @@ class ExifData:
 
 
 def _ratio_to_float(value) -> float:
+    """把 EXIF 比例值转换为普通浮点数。"""
     if isinstance(value, Fraction):
         return float(value)
     if hasattr(value, "num") and hasattr(value, "den"):
@@ -34,6 +40,7 @@ def _ratio_to_float(value) -> float:
 
 
 def _parse_gps_coordinate(values, ref: str | None) -> float | None:
+    """把 EXIF GPS 分量解析为带符号的十进制度数。"""
     if not values or len(values) != 3:
         return None
     degrees = _ratio_to_float(values[0])
@@ -46,6 +53,7 @@ def _parse_gps_coordinate(values, ref: str | None) -> float | None:
 
 
 def _parse_datetime(raw: str | None) -> datetime | None:
+    """解析支持的 EXIF 时间格式。"""
     if not raw:
         return None
     for fmt in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"):
@@ -56,8 +64,61 @@ def _parse_datetime(raw: str | None) -> datetime | None:
     return None
 
 
+def _clean_number(value: float) -> str:
+    text = f"{value:.2f}".rstrip("0").rstrip(".")
+    return text
+
+
+def _format_aperture(value) -> str | None:
+    if value is None:
+        return None
+    try:
+        return f"f/{_clean_number(_ratio_to_float(value))}"
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def _format_exposure_time(value) -> str | None:
+    if value is None:
+        return None
+    try:
+        if hasattr(value, "num") and hasattr(value, "den"):
+            numerator = int(value.num)
+            denominator = int(value.den)
+            if denominator == 0:
+                return None
+            if numerator < denominator:
+                return f"{numerator}/{denominator}s"
+            return f"{_clean_number(numerator / denominator)}s"
+        seconds = _ratio_to_float(value)
+        return f"{_clean_number(seconds)}s"
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def _format_focal_length(value) -> str | None:
+    if value is None:
+        return None
+    try:
+        return f"{_clean_number(_ratio_to_float(value))}mm"
+    except (TypeError, ValueError, ZeroDivisionError):
+        return None
+
+
+def _parse_iso(value) -> int | None:
+    if value is None:
+        return None
+    if hasattr(value, "values") and getattr(value, "values", None):
+        return _parse_iso(value.values[0])
+    try:
+        return int(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
 class ExifService:
     def extract(self, path: Path) -> ExifData:
+        """从图片文件中提取支持的 EXIF 和尺寸信息。"""
         data = ExifData()
         try:
             with path.open("rb") as file_obj:
@@ -77,6 +138,17 @@ class ExifService:
         )
         data.device_make = _safe_str(tags.get("Image Make"))
         data.device_model = _safe_str(tags.get("Image Model"))
+        data.lens_model = _safe_str(tags.get("EXIF LensModel"))
+        data.focal_length = _format_focal_length(
+            getattr(tags.get("EXIF FocalLength"), "values", [None])[0]
+        )
+        data.aperture = _format_aperture(getattr(tags.get("EXIF FNumber"), "values", [None])[0])
+        data.exposure_time = _format_exposure_time(
+            getattr(tags.get("EXIF ExposureTime"), "values", [tags.get("EXIF ExposureTime")])[0]
+        )
+        data.iso = _parse_iso(
+            tags.get("EXIF ISOSpeedRatings") or tags.get("EXIF PhotographicSensitivity")
+        )
 
         lat_values = getattr(tags.get("GPS GPSLatitude"), "values", None)
         lon_values = getattr(tags.get("GPS GPSLongitude"), "values", None)
@@ -93,6 +165,17 @@ class ExifService:
                 "设备 "
                 + " ".join(filter(None, [data.device_make, data.device_model]))
             )
+        if data.lens_model:
+            parts.append(f"镜头 {data.lens_model}")
+        capture_parts = [
+            value
+            for value in [data.focal_length, data.aperture, data.exposure_time]
+            if value
+        ]
+        if data.iso is not None:
+            capture_parts.append(f"ISO {data.iso}")
+        if capture_parts:
+            parts.append("参数 " + " ".join(capture_parts))
         if data.gps_lat is not None and data.gps_lon is not None:
             parts.append(f"GPS {data.gps_lat:.5f}, {data.gps_lon:.5f}")
         if data.width and data.height:
@@ -102,6 +185,7 @@ class ExifService:
 
 
 def _safe_str(value) -> str | None:
+    """把 EXIF 标签值规范化为干净的可选字符串。"""
     if value is None:
         return None
     text = str(value).strip()

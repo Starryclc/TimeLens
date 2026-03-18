@@ -1,4 +1,6 @@
 from app.models.models import (
+    Album,
+    AlbumPhoto,
     Face,
     LocationCache,
     MemoryRecommendation,
@@ -14,6 +16,8 @@ from app.models.models import (
 
 __all__ = [
     "Face",
+    "Album",
+    "AlbumPhoto",
     "LocationCache",
     "MemoryRecommendation",
     "Person",

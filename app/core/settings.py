@@ -18,6 +18,10 @@ class Settings(BaseSettings):
         default=Path("./data/thumbnails"),
         alias="TIMELENS_THUMBNAIL_DIR",
     )
+    archived_photo_dir: Path = Field(
+        default=Path("./data/archived_photos"),
+        alias="TIMELENS_ARCHIVED_PHOTO_DIR",
+    )
     cache_dir: Path = Field(default=Path("./data/cache"), alias="TIMELENS_CACHE_DIR")
     default_scan_dir: Path | None = Field(
         default=None,
@@ -56,6 +60,7 @@ class Settings(BaseSettings):
     @field_validator("debug", mode="before")
     @classmethod
     def normalize_debug(cls, value: object) -> bool:
+        """把不同形式的调试配置值归一化为布尔值。"""
         if isinstance(value, bool):
             return value
         if isinstance(value, str):
@@ -67,13 +72,16 @@ class Settings(BaseSettings):
         return bool(value)
 
     def ensure_directories(self) -> None:
+        """确保本地数据目录已经创建完成。"""
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.thumbnail_dir.mkdir(parents=True, exist_ok=True)
+        self.archived_photo_dir.mkdir(parents=True, exist_ok=True)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
+    """返回缓存后的应用配置对象。"""
     settings = Settings()
     settings.ensure_directories()
     return settings

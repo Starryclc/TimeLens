@@ -31,8 +31,31 @@ export function getPhotoLocation(photo) {
   return photo.location_name || photo.city || photo.region || photo.country || "未知地点";
 }
 
+export function getPhotoProvince(photo) {
+  return photo.region || "";
+}
+
 export function getPhotoDevice(photo) {
   return [photo.device_make, photo.device_model].filter(Boolean).join(" ") || "未知设备";
+}
+
+export function getPhotoLocationText(photo) {
+  return photo.location_name || photo.city || photo.region || photo.country || "";
+}
+
+export function getPhotoDeviceText(photo) {
+  return [photo.device_make, photo.device_model].filter(Boolean).join(" ");
+}
+
+export function getPhotoParameterText(photo) {
+  const parts = [];
+  if (photo.width && photo.height) {
+    parts.push(`${photo.width} × ${photo.height}`);
+  }
+  if (photo.mime_type) {
+    parts.push(photo.mime_type.toUpperCase());
+  }
+  return parts.join("   ");
 }
 
 export function getPhotoYear(photo) {

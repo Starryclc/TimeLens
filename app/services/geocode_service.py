@@ -32,6 +32,7 @@ class BaseGeocoder:
     provider_name = "base"
 
     def reverse_geocode(self, latitude: float, longitude: float) -> ResolvedLocation | None:
+        """把经纬度解析为结构化地点信息。"""
         raise NotImplementedError
 
 
@@ -39,6 +40,7 @@ class NominatimGeocoder(BaseGeocoder):
     provider_name = "nominatim"
 
     def reverse_geocode(self, latitude: float, longitude: float) -> ResolvedLocation | None:
+        """调用 Nominatim 执行逆地理编码。"""
         if not settings.geocoder_enabled:
             return None
 
@@ -84,10 +86,12 @@ class NominatimGeocoder(BaseGeocoder):
 
 class GeocodeService:
     def __init__(self) -> None:
+        """初始化当前启用的地理编码实现。"""
         self.geocoder = NominatimGeocoder()
 
     @staticmethod
     def _cache_key(latitude: float, longitude: float) -> str:
+        """为归一化后的经纬度生成稳定缓存键。"""
         normalized = f"{latitude:.5f},{longitude:.5f}"
         return sha1(normalized.encode("utf-8")).hexdigest()
 
@@ -97,6 +101,7 @@ class GeocodeService:
         latitude: float | None,
         longitude: float | None,
     ) -> ResolvedLocation | None:
+        """结合缓存查询和持久化执行逆地理编码。"""
         if latitude is None or longitude is None:
             return None
 

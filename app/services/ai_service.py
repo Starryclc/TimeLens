@@ -15,11 +15,13 @@ class AIAnalysisResult:
 
 class BaseVisionAnalyzer:
     def analyze(self, image_path: Path) -> AIAnalysisResult:
+        """分析图片并返回结构化 AI 元数据。"""
         raise NotImplementedError
 
 
 class PlaceholderVisionAnalyzer(BaseVisionAnalyzer):
     def analyze(self, image_path: Path) -> AIAnalysisResult:
+        """在接入真实本地模型前返回空结果。"""
         # MVP 只保留统一接口，后续替换为本地模型时业务层无需改动。
         return AIAnalysisResult(
             scene_label=None,

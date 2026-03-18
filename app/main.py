@@ -35,6 +35,7 @@ app.include_router(api_router)
 
 @app.get("/", tags=["system"])
 def root() -> dict[str, str]:
+    """返回当前后端服务的简要说明。"""
     return {
         "name": settings.app_name,
         "mode": "api",
@@ -43,6 +44,7 @@ def root() -> dict[str, str]:
 
 
 def main() -> None:
+    """按本地开发默认配置启动 FastAPI 后端。"""
     uvicorn.run(
         "app.main:app",
         host=settings.host,

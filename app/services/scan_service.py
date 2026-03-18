@@ -36,6 +36,7 @@ class ScanResult:
 
 class ScanService:
     def scan_directory(self, db: Session, scan_path: str) -> ScanResult:
+        """扫描目录并以增量方式更新照片记录。"""
         root = Path(scan_path).expanduser().resolve()
         if not root.exists() or not root.is_dir():
             raise ValueError(f"Scan path does not exist or is not a directory: {scan_path}")
@@ -99,6 +100,7 @@ class ScanService:
         )
 
     def _upsert_photo(self, db: Session, path: Path, scan_task_id: int) -> tuple[bool, bool, bool]:
+        """根据磁盘文件插入或刷新单张照片记录。"""
         stat = path.stat()
         existing = db.scalar(select(Photo).where(Photo.file_path == str(path)))
         needs_refresh = existing is None or existing.modified_at != datetime.fromtimestamp(stat.st_mtime)
@@ -131,6 +133,11 @@ class ScanService:
         photo.photo_taken_at = exif.photo_taken_at
         photo.device_make = exif.device_make
         photo.device_model = exif.device_model
+        photo.lens_model = exif.lens_model
+        photo.focal_length = exif.focal_length
+        photo.aperture = exif.aperture
+        photo.exposure_time = exif.exposure_time
+        photo.iso = exif.iso
         photo.width = exif.width
         photo.height = exif.height
         photo.mime_type = detect_mime_type(path)

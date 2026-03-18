@@ -32,11 +32,11 @@ export function PhotoDetailPage() {
     <div className="page-stack">
       <PageIntro
         eyebrow="Photo Detail"
-        title={photo.file_name}
+        title="照片详情"
         description="查看这张照片被系统整理出的时间、地点、设备与元数据线索。"
         action={
-          <Link className="button ghost" to="/gallery">
-            返回照片列表
+          <Link className="button ghost" to="/photos">
+            返回时间线
           </Link>
         }
       />

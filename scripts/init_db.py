@@ -10,5 +10,6 @@ from app.db.init_db import init_db
 
 
 if __name__ == "__main__":
+    """通过命令行初始化本地数据库。"""
     init_db()
     print("Database initialized.")
