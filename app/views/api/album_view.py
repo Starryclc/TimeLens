@@ -20,6 +20,16 @@ class PhotoArchiveRequest(BaseModel):
     reason: str = "duplicate"
 
 
+class FavoriteToggleResponse(BaseModel):
+    album_id: int
+    is_favorited: bool
+
+
+class FavoriteStatusResponse(BaseModel):
+    album_id: int
+    is_favorited: bool
+
+
 class AlbumSummaryRead(BaseModel):
     id: int
     title: str

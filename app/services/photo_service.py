@@ -89,7 +89,8 @@ class PhotoService:
         today: datetime | None = None,
     ) -> Photo | None:
         """在存在照片时返回一张随机照片，可排除那年今日照片。"""
-        stmt = select(Photo.id).where(Photo.is_hidden.is_(False), Photo.is_duplicate.is_(False))
+        base_conditions = [Photo.is_hidden.is_(False), Photo.is_duplicate.is_(False)]
+        stmt = select(Photo.id).where(*base_conditions)
         current = today or datetime.now()
         if exclude_on_this_day:
             stmt = stmt.where(
@@ -99,7 +100,31 @@ class PhotoService:
                     extract("day", Photo.photo_taken_at) != current.day,
                 )
             )
-        ids = list(db.scalars(stmt))
+        parameter_stmt = stmt.where(
+            Photo.photo_taken_at.is_not(None),
+            or_(
+                Photo.focal_length.is_not(None),
+                Photo.aperture.is_not(None),
+                Photo.exposure_time.is_not(None),
+                Photo.iso.is_not(None),
+            ),
+        )
+        rich_stmt = stmt.where(
+            Photo.photo_taken_at.is_not(None),
+            or_(
+                Photo.location_name.is_not(None),
+                Photo.device_model.is_not(None),
+                Photo.focal_length.is_not(None),
+                Photo.aperture.is_not(None),
+                Photo.exposure_time.is_not(None),
+                Photo.iso.is_not(None),
+            ),
+        )
+        ids = list(db.scalars(parameter_stmt))
+        if not ids:
+            ids = list(db.scalars(rich_stmt))
+        if not ids:
+            ids = list(db.scalars(stmt))
         if not ids:
             return None
         return self.get_photo(db, choice(ids))
@@ -174,6 +199,31 @@ class PhotoService:
             .distinct()
         )
         return [value for value in db.scalars(stmt) if value]
+
+    def update_photo(self, db: Session, photo_id: int, updates: dict) -> Photo | None:
+        """更新单张照片的可编辑信息字段。"""
+        photo = db.scalar(select(Photo).where(Photo.id == photo_id))
+        if photo is None:
+            return None
+
+        editable_fields = {
+            "photo_taken_at",
+            "location_name",
+            "device_make",
+            "device_model",
+            "focal_length",
+            "aperture",
+            "exposure_time",
+            "iso",
+        }
+        for key, value in updates.items():
+            if key in editable_fields:
+                setattr(photo, key, value)
+
+        db.add(photo)
+        db.commit()
+        db.refresh(photo)
+        return self.get_photo(db, photo_id)
 
 
 photo_service = PhotoService()

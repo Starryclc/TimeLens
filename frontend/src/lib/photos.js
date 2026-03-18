@@ -48,14 +48,24 @@ export function getPhotoDeviceText(photo) {
 }
 
 export function getPhotoParameterText(photo) {
+  return getPhotoParameterParts(photo).join("   ");
+}
+
+export function getPhotoParameterParts(photo) {
   const parts = [];
-  if (photo.width && photo.height) {
-    parts.push(`${photo.width} × ${photo.height}`);
+  if (photo.focal_length) {
+    parts.push(photo.focal_length);
   }
-  if (photo.mime_type) {
-    parts.push(photo.mime_type.toUpperCase());
+  if (photo.aperture) {
+    parts.push(photo.aperture);
   }
-  return parts.join("   ");
+  if (photo.exposure_time) {
+    parts.push(photo.exposure_time);
+  }
+  if (photo.iso) {
+    parts.push(`ISO ${photo.iso}`);
+  }
+  return parts;
 }
 
 export function getPhotoYear(photo) {

@@ -53,6 +53,17 @@ class PhotoRead(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PhotoUpdateRequest(BaseModel):
+    photo_taken_at: datetime | None = None
+    location_name: str | None = None
+    device_make: str | None = None
+    device_model: str | None = None
+    focal_length: str | None = None
+    aperture: str | None = None
+    exposure_time: str | None = None
+    iso: int | None = None
+
+
 class ScanRequest(BaseModel):
     path: str
 
