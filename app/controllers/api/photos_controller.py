@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.services.photo_service import photo_service
 from app.views.api.album_view import PhotoArchiveRequest
-from app.views.api.photo_view import PhotoRead
+from app.views.api.photo_view import PhotoRead, PhotoUpdateRequest
 
 
 router = APIRouter(prefix="/photos", tags=["photos"])
@@ -65,6 +65,19 @@ def archive_photo(
 ) -> PhotoRead:
     """把照片归档隐藏，避免继续在系统中展示。"""
     photo = photo_service.archive_photo(db, photo_id, payload.reason)
+    if photo is None:
+        raise HTTPException(status_code=404, detail="Photo not found")
+    return photo
+
+
+@router.patch("/{photo_id}", response_model=PhotoRead)
+def update_photo(
+    photo_id: int,
+    payload: PhotoUpdateRequest,
+    db: Session = Depends(get_db),
+) -> PhotoRead:
+    """更新单张照片的基础信息。"""
+    photo = photo_service.update_photo(db, photo_id, payload.model_dump(exclude_unset=True))
     if photo is None:
         raise HTTPException(status_code=404, detail="Photo not found")
     return photo

@@ -11,7 +11,9 @@ from app.views.api.album_view import (
     AlbumAddPhotosRequest,
     AlbumCreateRequest,
     AlbumDetailRead,
+    FavoriteStatusResponse,
     AlbumSummaryRead,
+    FavoriteToggleResponse,
 )
 from app.views.api.photo_view import PhotoRead
 
@@ -24,6 +26,34 @@ def list_albums(db: Session = Depends(get_db)) -> list[AlbumSummaryRead]:
     """返回所有自定义相册。"""
     albums = album_service.list_albums(db)
     return [album_service.serialize_album_summary(album) for album in albums]
+
+
+@router.get("/favorites", response_model=AlbumDetailRead)
+def get_favorites_album(db: Session = Depends(get_db)) -> AlbumDetailRead:
+    """返回默认收藏相册。"""
+    album = album_service.ensure_favorites_album(db)
+    return album_service.serialize_album_detail(album)
+
+
+@router.get("/favorites/photos/{photo_id}/status", response_model=FavoriteStatusResponse)
+def get_photo_favorite_status(photo_id: int, db: Session = Depends(get_db)) -> FavoriteStatusResponse:
+    """返回照片是否已收藏。"""
+    album = album_service.ensure_favorites_album(db)
+    return FavoriteStatusResponse(
+        album_id=album.id,
+        is_favorited=album_service.is_photo_favorited(db, photo_id),
+    )
+
+
+@router.post("/favorites/photos/{photo_id}/toggle", response_model=FavoriteToggleResponse)
+def toggle_photo_favorite(photo_id: int, db: Session = Depends(get_db)) -> FavoriteToggleResponse:
+    """切换照片收藏状态。"""
+    result = album_service.toggle_favorite_photo(db, photo_id)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    album, is_favorited = result
+    return FavoriteToggleResponse(album_id=album.id, is_favorited=is_favorited)
 
 
 @router.post("", response_model=AlbumDetailRead)
