@@ -118,8 +118,7 @@ class AlbumService:
         city: str | None = None,
         region: str | None = None,
         country: str | None = None,
-        device_make: str | None = None,
-        device_model: str | None = None,
+        device: str | None = None,
     ) -> Photo:
         saved_path = save_uploaded_photo(upload)
         file_hash = compute_file_hash(saved_path)
@@ -135,8 +134,7 @@ class AlbumService:
             imported_at=datetime.utcnow(),
             modified_at=datetime.fromtimestamp(stat.st_mtime),
             photo_taken_at=taken_at,
-            device_make=device_make,
-            device_model=device_model,
+            device=device,
             mime_type=detect_mime_type(saved_path),
             location_source="manual" if any([location_name, city, region, country]) else "unknown",
             location_name=location_name,

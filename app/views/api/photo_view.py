@@ -19,8 +19,7 @@ class PhotoRead(BaseModel):
     file_name: str
     photo_taken_at: datetime | None
     imported_at: datetime
-    device_make: str | None
-    device_model: str | None
+    device: str | None
     lens_model: str | None
     focal_length: str | None
     aperture: str | None
@@ -56,8 +55,11 @@ class PhotoRead(BaseModel):
 class PhotoUpdateRequest(BaseModel):
     photo_taken_at: datetime | None = None
     location_name: str | None = None
-    device_make: str | None = None
-    device_model: str | None = None
+    city: str | None = None
+    region: str | None = None
+    country: str | None = None
+    device: str | None = None
+    lens_model: str | None = None
     focal_length: str | None = None
     aperture: str | None = None
     exposure_time: str | None = None

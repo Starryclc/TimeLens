@@ -95,8 +95,7 @@ def upload_photo(
     city: str | None = Form(default=None),
     region: str | None = Form(default=None),
     country: str | None = Form(default=None),
-    device_make: str | None = Form(default=None),
-    device_model: str | None = Form(default=None),
+    device: str | None = Form(default=None),
     db: Session = Depends(get_db),
 ) -> PhotoRead:
     """上传本地照片到时间线或自定义相册。"""
@@ -122,7 +121,6 @@ def upload_photo(
         city=city,
         region=region,
         country=country,
-        device_make=device_make,
-        device_model=device_model,
+        device=device,
     )
     return photo

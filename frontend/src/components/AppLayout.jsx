@@ -1,5 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 
+import { APP_NAME } from "../lib/constants";
+
 const navigationItems = [
   { to: "/", label: "首页", icon: HomeIcon },
   { to: "/photos", label: "照片", icon: PhotoIcon },
@@ -17,7 +19,7 @@ export function AppLayout({ children }) {
       <header className="app-topbar">
         <div className="app-topbar-inner">
           <Link className="app-brand" to="/">
-            TimeLens
+            {APP_NAME}
           </Link>
           <nav className="app-nav desktop-only" aria-label="Primary">
             {navigationItems.map((item) => (

@@ -49,9 +49,7 @@ class PhotoService:
             )
         if device:
             pattern = f"%{device}%"
-            stmt = stmt.where(
-                or_(Photo.device_make.ilike(pattern), Photo.device_model.ilike(pattern))
-            )
+            stmt = stmt.where(Photo.device.ilike(pattern))
         if tag:
             stmt = stmt.join(PhotoTag).where(func.lower(PhotoTag.tag) == tag.lower())
 
@@ -113,7 +111,7 @@ class PhotoService:
             Photo.photo_taken_at.is_not(None),
             or_(
                 Photo.location_name.is_not(None),
-                Photo.device_model.is_not(None),
+                Photo.device.is_not(None),
                 Photo.focal_length.is_not(None),
                 Photo.aperture.is_not(None),
                 Photo.exposure_time.is_not(None),
@@ -190,9 +188,9 @@ class PhotoService:
     def get_device_options(self, db: Session) -> list[str]:
         """返回前端筛选使用的去重设备型号。"""
         stmt = (
-            select(Photo.device_model)
+            select(Photo.device)
             .where(
-                Photo.device_model.is_not(None),
+                Photo.device.is_not(None),
                 Photo.is_hidden.is_(False),
                 Photo.is_duplicate.is_(False),
             )
@@ -209,8 +207,11 @@ class PhotoService:
         editable_fields = {
             "photo_taken_at",
             "location_name",
-            "device_make",
-            "device_model",
+            "city",
+            "region",
+            "country",
+            "device",
+            "lens_model",
             "focal_length",
             "aperture",
             "exposure_time",

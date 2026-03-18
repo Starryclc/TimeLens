@@ -36,7 +36,7 @@ export function getPhotoProvince(photo) {
 }
 
 export function getPhotoDevice(photo) {
-  return [photo.device_make, photo.device_model].filter(Boolean).join(" ") || "未知设备";
+  return photo.device || "未知设备";
 }
 
 export function getPhotoLocationText(photo) {
@@ -44,7 +44,7 @@ export function getPhotoLocationText(photo) {
 }
 
 export function getPhotoDeviceText(photo) {
-  return [photo.device_make, photo.device_model].filter(Boolean).join(" ");
+  return photo.device || "";
 }
 
 export function getPhotoParameterText(photo) {
